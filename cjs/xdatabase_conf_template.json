@@ -3,5 +3,10 @@
   "database": {
     "path": ""
   },
-  "files": {}
+  "files": {},
+  "version": "1.0.0",
+  "docs": {
+    "path": "",
+    "zip": false
+  }
 }

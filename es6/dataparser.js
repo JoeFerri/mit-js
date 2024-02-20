@@ -21,6 +21,7 @@ export default class DataParser {
   static COL_SEP      = '‡ç';
   static NUM_CELL_SEP = '‡¥';
   static NUM_ROW_SEP  = '‡þ';
+  static NO_VALUE     = '‡ø';
 
   constructor() {
   }
@@ -48,19 +49,25 @@ export default class DataParser {
     const rows = dataSheetJSON.data.split(DataParser.ROW_SEP);
     rows.forEach(row => {
       const [rowNumber,rowData] = row.split(DataParser.NUM_ROW_SEP);
-      const rowsData = rowData.split(DataParser.COL_SEP);
+      const colsData = rowData.split(DataParser.COL_SEP);
       let rowJSON = {
         "number": rowNumber,
         "cells": []
       };
 
-      rowsData.forEach(cellData => {
+      colsData.forEach(cellData => {
         const cellInfo = cellData.split(DataParser.NUM_CELL_SEP);
         rowJSON.cells.push({
           "col": cellInfo[0],
-          "value": cellInfo[1]
+          "value": cellInfo[1] == DataParser.NO_VALUE ? '' : cellInfo[1]
         });
       });
+      for (let i = rowJSON.cells.length; i < dataSheetJSON.actualColCount; i++) {
+        rowJSON.cells.push({
+          "col": i,
+          "value": ''
+        });
+      }
 
       sheetJSON.rows.push(rowJSON);
     });
@@ -119,6 +126,10 @@ export default class DataParser {
       "sheet": sheetInput,
       "path": filePathInput
     },
+    "rowCount": worksheet.rowCount,
+    "colCount": worksheet.columnCount,
+    "actualRowCount": worksheet.actualRowCount,
+    "actualColCount": worksheet.actualColumnCount,
     "data": dataRaw,
     "sheet": {
       "rows": [

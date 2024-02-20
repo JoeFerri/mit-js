@@ -25,6 +25,7 @@ module.exports = class DataParser {
   static COL_SEP      = '‡ç';
   static NUM_CELL_SEP = '‡¥';
   static NUM_ROW_SEP  = '‡þ';
+  static NO_VALUE     = '‡ø';
 
   constructor() {
   }
@@ -102,14 +103,16 @@ module.exports = class DataParser {
       if (dataRaw != "") dataRaw += `${DataParser.ROW_SEP}`;
       dataRaw += `${rowNumber}${DataParser.NUM_ROW_SEP}`;
       let first = true;
-      row.eachCell((cell, colNumber) => {
+      row.eachCell({includeEmpty: true}, (cell, colNumber) => {
         if (first) {
           first = false;
         }
         else {
           dataRaw += DataParser.COL_SEP;
         }
-        dataRaw += `${colNumber}${DataParser.NUM_CELL_SEP}${typeof cell.value === 'object' ? cell.result : cell.value}`;
+        let value = typeof cell.value === 'object' ? cell.result : cell.value;
+        if (value == null || value == undefined || value == "undefined") value = DataParser.NO_VALUE;
+        dataRaw += `${colNumber}${DataParser.NUM_CELL_SEP}${value}`;
       })
     })
   
@@ -120,6 +123,10 @@ module.exports = class DataParser {
         "sheet": fileSheet,
         "path": filePath
       },
+      "rowCount": worksheet.rowCount,
+      "colCount": worksheet.columnCount,
+      "actualRowCount": worksheet.actualRowCount,
+      "actualColCount": worksheet.actualColumnCount,
       "data": dataRaw
     }
   
@@ -137,6 +144,10 @@ module.exports = class DataParser {
       "sheet": sheetInput,
       "path": filePathInput
     },
+    "rowCount": worksheet.rowCount,
+    "colCount": worksheet.columnCount,
+    "actualRowCount": worksheet.actualRowCount,
+    "actualColCount": worksheet.actualColumnCount,
     "data": dataRaw,
     "sheet": {
       "rows": [
